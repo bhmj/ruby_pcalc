@@ -42,9 +42,7 @@ class PolandCalculatorTest < Test::Unit::TestCase
   end
 
   def test_insufficient_arguments_op
-    pc = PolandCalculator.new do
-      decimal_selector :d_2
-    end
+    pc = PolandCalculator.new 
     assert_raise(InsufficientArguments) { pc.calc('1 +') }
   end
 
@@ -53,25 +51,35 @@ class PolandCalculatorTest < Test::Unit::TestCase
       functions do
         f_x -> (x) { 1.0 / x }
       end
-      decimal_selector :d_2
     end
     assert_raise(InsufficientArguments) { pc.calc('f_x') }
   end
 
   def test_invalid_token
-    pc = PolandCalculator.new do
-      decimal_selector :d_2
-    end
+    pc = PolandCalculator.new
     assert_raise(InvalidToken) { pc.calc('1 2 @') }
     assert_raise(InvalidToken) { pc.calc('x y +') }
   end
 
-
   def test_invalid_expression
-    pc = PolandCalculator.new do
-      decimal_selector :d_2
-    end
+    pc = PolandCalculator.new
     assert_raise(InvalidExpression) { pc.calc('1 2 3 +') }
+  end
+
+  def test_tricky_regexps
+    pc = PolandCalculator.new
+    assert_raise(InvalidToken) { pc.calc('1 2 + fake_f_3') }
+    assert_raise(InvalidToken) { pc.calc('1 2 +-') }
+    assert_raise(InvalidToken) { pc.calc('--1 2 +') }
+    assert_raise(InvalidToken) { pc.calc('.1 2 +') } # questionable
+  end
+
+  def test_tricky_expressions
+    pc = PolandCalculator.new
+    assert_equal -5, pc.calc('-1 5 *'), "Negative numbers"
+    assert_equal Float::INFINITY, pc.calc('1 0 /'), "Infinity"
+    assert_equal -Float::INFINITY, pc.calc('-1 0 /'), "-Infinity"
+    assert_equal true, pc.calc('-1 0 / 1 0 / +').nan?, "NaN"
   end
 
 end
