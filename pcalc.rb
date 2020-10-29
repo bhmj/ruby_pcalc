@@ -1,7 +1,7 @@
 require 'logger'
 
 $logger = Logger.new(STDOUT)
-$logger.level = Logger::WARN # try INFO
+$logger.level = Logger::WARN # try INFO or WARN
 
 class UnsupportedDecimalSelector < StandardError; end
 class InsufficientArguments < StandardError; end
@@ -11,22 +11,9 @@ class InvalidExpression < StandardError; end
 class PolandCalculator
 
   def initialize (&block)
-    # set decimal_selector
-    @decimal_selector = :d_2
+    @decimal_selector = :d_2 # default
     instance_eval &block if block_given?
     @stack = Array.new
-  end
-
-  def token_type (tok)
-    if tok =~ /[0-9]+(\.?[0-9]*)?/ then
-      return :number
-    elsif tok =~ /f_/ then
-      return :function
-    elsif tok =~ /[\+\-\*\/]+/ then
-      return :operator
-    else
-      return :invalid
-    end
   end
 
   def decimal_selector(dec)
@@ -35,6 +22,18 @@ class PolandCalculator
 
   def functions(&block)
     @fns = block
+  end
+
+  def token_type (tok)
+    if tok =~ /^\-?[0-9]+(\.[0-9]*)?$/ then
+      return :number
+    elsif tok =~ /^f_\w+$/ then
+      return :function
+    elsif tok =~ /^[\+\-\*\/]{1}$/ then
+      return :operator
+    else
+      return :invalid
+    end
   end
 
   def calc (str)
@@ -52,7 +51,7 @@ class PolandCalculator
       if token_type(fn) == :function
         $logger.info "  creating method #{fn}"
         singleton_class.define_method(fn) do |lmb|
-          $logger.info "  creating wrapper on #{lmb}"
+          $logger.info "  creating wrapper for #{fn} on #{lmb}"
           singleton_class.define_method("f"+fn) do |arg|
             result = lmb.call(arg)
             $logger.info "#{result} = #{fn}(#{arg})"
@@ -131,7 +130,7 @@ pc = PolandCalculator.new do
     f_x -> (x) { 1.0 / x }
     f_my_function -> (x) { 0.99 + x }
   end
-  decimal_selector :d_5
+  decimal_selector :d_2
 end
 puts pc.calc('1. 1 + f_my_function f_x 2 +')
 =end
