@@ -8,6 +8,9 @@ class PolandCalculatorTest < Test::Unit::TestCase
       decimal_selector :d_0
     end
     assert_equal 15, pc.calc('1 2 + 4 * 3.1 +'), "1st reference result"
+    assert_equal 15, pc.calc('1. 2 + 4 * 3.1 +'), "1st reference result"
+    assert_equal 15, pc.calc('1.0 2 + 4 * 3.1 +'), "1st reference result"
+    assert_equal 15, pc.calc('1.00 2 + 4 * 3.1 +'), "1st reference result"
   end
 
   def test_second

@@ -1,7 +1,7 @@
 require 'logger'
 
 $logger = Logger.new(STDOUT)
-$logger.level = Logger::WARN
+$logger.level = Logger::WARN # try INFO
 
 class UnsupportedDecimalSelector < StandardError; end
 class InsufficientArguments < StandardError; end
