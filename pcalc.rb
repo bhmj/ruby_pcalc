@@ -25,11 +25,11 @@ class PolandCalculator
   end
 
   def token_type (tok)
-    if tok =~ /^\-?[0-9]+(\.[0-9]*)?$/ then
+    if tok.match(/^\-?([0-9]+\.?[0-9]*)|([0-9]*\.[0-9]+)$/) then
       return :number
     elsif tok =~ /^f_\w+$/ then
       return :function
-    elsif tok =~ /^[\+\-\*\/]{1}$/ then
+    elsif tok =~ /^[\+\-\*\/]$/ then
       return :operator
     else
       return :invalid
@@ -37,13 +37,15 @@ class PolandCalculator
   end
 
   def calc (str)
+    @stack.clear
+
     case @decimal_selector
     when :d_0, :d_2, :d_float
     else
       $logger.fatal("Unsupported decimal selector")
       raise UnsupportedDecimalSelector, "Unsupported decimal selector"
     end
-    #
+
     $logger.info "decimals: #{@decimal_selector}"
     $logger.info "preparing functions"
     # prepare functions (not sure if this is a good way to do it but it works)

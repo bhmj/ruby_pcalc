@@ -8,9 +8,6 @@ class PolandCalculatorTest < Test::Unit::TestCase
       decimal_selector :d_0
     end
     assert_equal 15, pc.calc('1 2 + 4 * 3.1 +'), "1st reference result"
-    assert_equal 15, pc.calc('1. 2 + 4 * 3.1 +'), "1st reference result"
-    assert_equal 15, pc.calc('1.0 2 + 4 * 3.1 +'), "1st reference result"
-    assert_equal 15, pc.calc('1.00 2 + 4 * 3.1 +'), "1st reference result"
   end
 
   def test_second
@@ -71,15 +68,29 @@ class PolandCalculatorTest < Test::Unit::TestCase
     assert_raise(InvalidToken) { pc.calc('1 2 + fake_f_3') }
     assert_raise(InvalidToken) { pc.calc('1 2 +-') }
     assert_raise(InvalidToken) { pc.calc('--1 2 +') }
-    assert_raise(InvalidToken) { pc.calc('.1 2 +') } # questionable
+    assert_equal 3, pc.calc('1 2 +'), "number regexp"
+    assert_equal 3, pc.calc('1. 2 +'), "number regexp"
+    assert_equal 3, pc.calc('1.0 2 +'), "number regexp"
+    assert_equal 3, pc.calc('1.00 2 +'), "number regexp"
+    assert_equal 2.1, pc.calc('.1 2 +'), "number regexp"
+    assert_equal 2.1, pc.calc('0.1 2 +'), "number regexp"
+    assert_equal 2.1, pc.calc('00.1 2 +'), "number regexp"
+    assert_equal 2.1, pc.calc('00.10 2 +'), "number regexp"
   end
 
   def test_tricky_expressions
     pc = PolandCalculator.new
+    assert_equal 123, pc.calc('123'), "Single number is valid"
     assert_equal -5, pc.calc('-1 5 *'), "Negative numbers"
     assert_equal Float::INFINITY, pc.calc('1 0 /'), "Infinity"
     assert_equal -Float::INFINITY, pc.calc('-1 0 /'), "-Infinity"
     assert_equal true, pc.calc('-1 0 / 1 0 / +').nan?, "NaN"
+  end
+
+  def test_clear_stack
+    pc = PolandCalculator.new
+    assert_raise(InvalidExpression) { pc.calc('1 2') } # left on stack after exception
+    assert_equal 2.5, pc.calc('1 1.5 +'), "stack cleared"
   end
 
 end
