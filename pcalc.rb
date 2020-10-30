@@ -79,14 +79,14 @@ class PolandCalculator
         end
         right = @stack.pop
         left = @stack.pop
-        result = case
-            when tok == "+"
+        result = case tok
+            when "+"
               left + right
-            when tok == "-"
+            when "-"
               left - right
-            when tok == "*"
+            when "*"
               left * right
-            when tok == "/"
+            when "/"
               left / right
             end        
         @stack.push result
