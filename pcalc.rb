@@ -39,6 +39,8 @@ class PolandCalculator
   def calc (str)
     @stack.clear
 
+    return if str.empty?
+
     case @decimal_selector
     when :d_0, :d_2, :d_float
     else
@@ -126,13 +128,9 @@ class PolandCalculator
   end
 end
 
-=begin
+#=begin
 pc = PolandCalculator.new do
-  functions do
-    f_x -> (x) { 1.0 / x }
-    f_my_function -> (x) { 0.99 + x }
-  end
   decimal_selector :d_2
 end
-puts pc.calc('1. 1 + f_my_function f_x 2 +')
-=end
+puts pc.calc('')
+#=end
